@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #4a4a4a;
+            background: linear-gradient(135deg, #e0e7ff, #fce7f3); /* Pastel gradient */ /* Pastel gradient: blue to pink to green */
+            position: relative;
+            overflow: hidden;
+            {% comment %} background: url("{% static 'images/dashboard-bg.jpg' %}") no-repeat center center/cover; {% endcomment %}
+        }
+        .dashboard-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 40px;
+            /* Removed overlay to let background show through */
+            z-index: 1; /* Above background */
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .profile-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #fef3c7; /* Pastel yellow */
+            color: #92400e; /* Darker amber text */
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .profile-link:hover {
+            background-color: #fde68a; /* Slightly darker pastel yellow */
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2x2 grid */
+            gap: 25px;
+            max-width: 500px;
+            padding: 20px;
+        }
+        .box {
+            background: rgba(255, 255, 255, 0.9); /* Slightly translucent white */
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+        .box:nth-child(1) {
+            background-color: rgba(224, 231, 255, 0.9); /* Pastel blue with translucency */
+        }
+        .box:nth-child(2) {
+            background-color: rgba(252, 231, 243, 0.9); /* Pastel pink with translucency */
+        }
+        .box:nth-child(3) {
+            background-color: rgba(209, 250, 229, 0.9); /* Pastel green with translucency */
+        }
+        .box:nth-child(4) {
+            background-color: rgba(233, 213, 255, 0.9); /* Pastel purple with translucency */
+        }
+        .box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background-color: rgba(249, 250, 251, 0.9); /* Light hover effect */
+        }
+        .box a {
+            text-decoration: none;
+            color: #374151; /* Darker gray */
+            font-weight: 500;
+        }
+        .logout-section {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+        }
+        .logout-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background-color: #fed7aa; /* Pastel orange */
+            color: #9a3412; /* Darker orange text */
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        .logout-button:hover {
+            background-color: #fb923c; /* Slightly darker pastel orange */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #6b7280; /* Pastel gray */
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-texture"></div>
+    <div class="dashboard-wrapper">
+        <h1>Dashboard</h1>
+        <div class="header">
+            <a href="{% url 'view_profile' %}" class="profile-link">View Profile</a>
+        </div>
+        <div class="container">
+            <div class="box"><a href="{% url 'requested_files' %}">Requested Files</a></div>
+            <div class="box"><a href="{% url 'upload_file' %}">Upload</a></div>
+            <div class="box"><a href="{% url 'view_files' %}">View Files</a></div>
+            <div class="box"><a href="{% url 'request_file' %}">Request Files</a></div>
+        </div>
+        <div class="logout-section">
+            <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f6f8; /* Light pastel gray */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a4a4a;
+        }
+        .upload-wrapper {
+            display: flex;
+            width: 900px;
+            height: 500px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .left-section {
+            flex: 1;
+            background: linear-gradient(135deg, #e0e7ff, #d1fae5); /* Pastel blue to green gradient */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        .left-section h1 {
+            color: #6b7280; /* Pastel gray */
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .left-section p {
+            color: #9ca3af; /* Light gray */
+            font-size: 1rem;
+            text-align: center;
+            max-width: 80%;
+        }
+        .right-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            color: #9ca3af; /* Light gray */
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb; /* Light gray border */
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            background: #f9fafb; /* Very light gray */
+            color: #4a4a4a;
+        }
+        input[type="text"] {
+            background: #e5e7eb; /* Slightly darker gray for readonly */
+            cursor: not-allowed;
+        }
+        input[type="file"]:focus,
+        input[type="text"]:focus {
+            border-color: #60a5fa; /* Pastel blue */
+            outline: none;
+        }
+        button {
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af; /* Darker blue text */
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #93c5fd; /* Slightly darker pastel blue */
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #60a5fa; /* Pastel blue link */
+            font-weight: 500;
+            text-align: center;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #3b82f6; /* Slightly darker blue */
+        }
+        #responseMessage {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6b7280; /* Pastel gray */
+            text-align: center;
+        }
+        #responseMessage.error {
+            color: #f87171; /* Pastel red for errors */
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+        }
+        .back-btn a {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af; /* Darker blue text */
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .back-btn a:hover {
+            background-color: #93c5fd; /* Slightly darker pastel blue */
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-wrapper">
+        <div class="left-section">
+            <h1>Upload Your Files</h1>
+            <p>Securely upload your medical files to your container with ease.</p>
+        </div>
+        <div class="right-section">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="container_name">Your Container Name:</label>
+                    <input type="text" id="container_name" name="container_name" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="file">Select a File:</label>
+                    <input type="file" id="file" name="file" required>
+                </div>
+                <button type="submit">Upload</button>
+            </form>
+            <div class="back-btn">
+                <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+            </div>
+            <p id="responseMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("/get_container_name/", {
+                method: "GET",
+                credentials: "include"  // Ensures authentication cookies are sent
+            })         
+            .then(response => response.json())
+            .then(data => {
+                console.log("API Response:", data);  // Debugging
+                if (data.container_name) {
+                    document.getElementById("container_name").value = data.container_name;  // Set the input field
+                } else {
+                    document.getElementById("container_name").value = "No container found";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching container:", error);
+                document.getElementById("container_name").value = "Error fetching container";
+            });
+        });
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form from refreshing
+
+            let formData = new FormData();
+            formData.append("file", document.getElementById("file").files[0]);
+            formData.append("container_name", document.getElementById("container_name").value);
+
+            fetch("http://127.0.0.1:8000/upload_file/", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("responseMessage").innerText = data.message || data.error;
+            })
+            .catch(error => {
+                document.getElementById("responseMessage").innerText = "Error uploading file";
+            });
+        });
+    </script>
+</body>
+</html>

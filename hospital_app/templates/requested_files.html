@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Requested Files</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f6f8;
+            text-align: center;
+            padding: 40px;
+            margin: 0;
+            color: #4a4a4a;
+        }
+        h1 {
+            color: #6b7280;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #a7f3d0;
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        tr:hover {
+            background-color: #f9fafb;
+        }
+        .btn {
+            background-color: #bfdbfe;
+            color: #1e40af;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #93c5fd;
+        }
+        .btn-approve {
+            background-color: #fbcfe8;
+            color: #be185d;
+        }
+        .btn-approve:hover {
+            background-color: #f9a8d4;
+        }
+        .status-label {
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.85rem;
+            color: white;
+        }
+        .approved {
+            background-color: #6ee7b7;
+        }
+        .pending {
+            background-color: #f87171;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .popup input {
+            width: 90%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .popup button {
+            width: 100%;
+            padding: 10px;
+            background-color: #93c5fd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .popup button:hover {
+            background-color: #60a5fa;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 5;
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+        }
+        .back-btn a {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af; /* Darker blue text */
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .back-btn a:hover {
+            background-color: #93c5fd; /* Slightly darker pastel blue */
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Requested Files</h1>
+    {% if requests %}
+    <table>
+        <tr>
+            <th>Request ID</th>
+            <th>Requested Doctor</th>
+            <th>Filename</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for req in requests %}
+        <tr>
+            <td>{{ req.id }}</td>
+            <td>{{ req.requester_name }}</td>
+            <td>{{ req.filename }}</td>
+            <td>
+                <span class="status-label {% if req.status == 'Approved' %}approved{% else %}pending{% endif %}">
+                    {{ req.status }}
+                </span>
+            </td>
+            <td>
+                {% if req.status == "Pending" %}
+                    <button class="btn btn-approve" onclick="approveRequest('{{ req.id }}')">Approve</button>
+                {% endif %}
+                <button class="btn" onclick="openPopup('{{ req.id }}', '{{ req.filename }}')">Send</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    <div class="back-btn">
+        <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+    </div>
+    <div class="popup-overlay" onclick="closePopup()"></div>
+    <div class="popup" id="popup">
+        <h3>Send File</h3>
+        <p><strong>Sender:</strong> <span id="senderName">{{ request.user.username }}</span></p>
+        <input type="text" id="receiverName" placeholder="Enter Receiver Name">
+        <input type="text" id="fileName" placeholder="Enter Filename">
+        <button onclick="sendFile()">Send</button>
+    </div>
+
+    <script>
+        function approveRequest(requestId) {
+            const button = document.querySelector(`#approve-btn-${requestId}`);
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Approving...";
+            }
+            fetch(`/approve_request/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ requestId: requestId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert(`Request ID ${requestId} approved successfully!`);
+                location.reload();
+            })
+            .catch(error => {
+                alert(`Failed to approve request: ${error.message}`);
+            })
+            .finally(() => {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = "Approve";
+                }
+            });
+        }
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        let currentRequestId = null;
+
+        function openPopup(requestId, filename) {
+            currentRequestId = requestId;
+            document.getElementById("fileName").value = filename;
+            document.getElementById("popup").style.display = "block";
+            document.querySelector(".popup-overlay").style.display = "block";
+        }
+        
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+            document.querySelector(".popup-overlay").style.display = "none";
+        }
+
+        function sendFile() {
+            let sender = document.getElementById("senderName").textContent;
+            let receiver = document.getElementById("receiverName").value;
+            let filename = document.getElementById("fileName").value;
+            
+            filename = encodeURIComponent(filename);
+
+            console.log("Sender:", sender);
+            console.log("Receiver:", receiver);
+            console.log("Filename:", filename);
+            
+            fetch("/send_file/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    sender: sender,
+                    receiver: receiver,
+                    filename: filename
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert("File sent successfully!");
+                closePopup();
+            })
+            .catch(error => {
+                alert("Error: " + error.message);
+            });
+        }
+        
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send File</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-family: Helvetica, sans-serif;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-family: Helvetica, sans-serif;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: opacity 0.3s;
+            font-family: Helvetica, sans-serif;
+        }
+        .approve-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .send-btn {
+            background-color: #008CBA;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin: 10px;
+            font-family: Helvetica, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Send File</h1>
+    <div id="error" class="error"></div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Serial No.</th>
+                <th>Requested By</th>
+                <th>Approve</th>
+                <th>Send</th>
+            </tr>
+        </thead>
+        <tbody id="requestTable">
+            <!-- Rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        const BACKEND_PAGE = './backend.php'; // Relative path to backend page
+
+        // Function to fetch and populate table
+        async function populateTable() {
+            const tableBody = document.getElementById('requestTable');
+            const errorDiv = document.getElementById('error');
+            tableBody.innerHTML = ''; // Clear existing rows
+            
+            try {
+                const response = await fetch(BACKEND_PAGE, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const requests = await response.json();
+                
+                requests.forEach((request, index) => {
+                    const row = document.createElement('tr');
+                    
+                    const serialCell = document.createElement('td');
+                    serialCell.textContent = index + 1;
+                    row.appendChild(serialCell);
+
+                    const requesterCell = document.createElement('td');
+                    requesterCell.textContent = request.requester;
+                    row.appendChild(requesterCell);
+
+                    const approveCell = document.createElement('td');
+                    const approveBtn = document.createElement('button');
+                    approveBtn.textContent = request.approved ? 'Approved' : 'Approve';
+                    approveBtn.className = 'approve-btn';
+                    approveBtn.disabled = request.approved;
+                    approveBtn.onclick = () => handleApprove(request.id, approveBtn, row);
+                    approveCell.appendChild(approveBtn);
+                    row.appendChild(approveCell);
+
+                    const sendCell = document.createElement('td');
+                    const sendBtn = document.createElement('button');
+                    sendBtn.textContent = request.sent ? 'Sent' : 'Send';
+                    sendBtn.className = 'send-btn';
+                    sendBtn.disabled = request.sent || !request.approved;
+                    sendBtn.onclick = () => handleSend(request.id, sendBtn);
+                    sendCell.appendChild(sendBtn);
+                    row.appendChild(sendCell);
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                errorDiv.textContent = 'Error loading requests: ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        // Handle approve action
+        async function handleApprove(id, button, row) {
+            try {
+                const response = await fetch(BACKEND_PAGE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id, action: 'approve' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to approve');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    button.textContent = 'Approved';
+                    button.disabled = true;
+                    const sendButton = row.querySelector('.send-btn');
+                    sendButton.disabled = false;
+                }
+            } catch (error) {
+                document.getElementById('error').textContent = 'Error approving: ' + error.message;
+            }
+        }
+
+        // Handle send action
+        async function handleSend(id, button) {
+            try {
+                const response = await fetch(BACKEND_PAGE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id, action: 'send' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    button.textContent = 'Sent';
+                    button.disabled = true;
+                }
+            } catch (error) {
+                document.getElementById('error').textContent = 'Error sending: ' + error.message;
+            }
+        }
+
+        // Populate table when page loads
+        window.onload = populateTable;
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Files</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f6f8; /* Light pastel gray */
+            text-align: center;
+            padding: 40px;
+            margin: 0;
+            color: #4a4a4a;
+        }
+        h1 {
+            color: #6b7280; /* Pastel gray */
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb; /* Light gray border */
+        }
+        th {
+            background-color: #d1fae5; /* Pastel green */
+            color: #374151;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        tr:hover {
+            background-color: #f9fafb; /* Very light gray hover */
+        }
+        .btn {
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #93c5fd;
+        }
+        .btn-decrypt {
+            background-color: #a7f3d0; /* Pastel Green */
+            color: #065f46; /* Darker Green Text */
+        }
+        .btn-decrypt:hover {
+            background-color: #6ee7b7;
+        }
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            font-size: 1rem;
+            color: #60a5fa;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #3b82f6;
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+        }
+        .back-btn a {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af; /* Darker blue text */
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .back-btn a:hover {
+            background-color: #93c5fd; /* Slightly darker pastel blue */
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Your Files</h1>
+    
+    {% if files %}
+    <table>
+        <tr>
+            <th>Filename</th>
+            <th>Size (Bytes)</th>
+            <th>Actions</th>
+        </tr>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.name }}</td>
+            <td>{{ file.size }}</td>
+            <td>
+                <button class="btn" onclick="downloadFile('{{ file.name }}')">Download</button>
+                {% if file.is_encrypted %}
+                    <button class="btn btn-decrypt" onclick="decryptFile('{{ file.name }}')">Decrypt</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No files found in your container.</p>
+    {% endif %}
+
+    <div class="back-btn">
+        <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+    </div>
+
+    <script>
+        function downloadFile(filename) {
+            const downloadUrl = `/download/${filename}/`;
+            window.location.href = downloadUrl;
+        }
+    
+        function decryptFile(filename) {
+            fetch(`/decrypt/${filename}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server error: ${response.status} - ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert(`File '${filename}' decrypted and stored as '${data.decrypted_filename}' successfully!`);
+                location.reload();  // Refresh page to show decrypted file
+            })
+            .catch(error => {
+                console.error("Error decrypting file:", error);
+                alert(`Failed to decrypt '${filename}': ${error.message}`);
+            });
+        }
+    
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

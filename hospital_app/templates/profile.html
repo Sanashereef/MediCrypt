@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f6f8; /* Light pastel gray */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #4a4a4a;
+        }
+        .profile-container {
+            max-width: 600px;
+            background: #ffffff;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+        .profile-header {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #6b7280; /* Pastel gray */
+            margin-bottom: 25px;
+        }
+        .profile-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb; /* Light gray border */
+        }
+        .profile-field:last-child {
+            border-bottom: none;
+        }
+        .profile-label {
+            font-weight: 500;
+            color: #9ca3af; /* Light gray */
+            font-size: 0.9rem;
+            width: 40%;
+        }
+        .profile-value {
+            color: #4a4a4a;
+            font-size: 0.9rem;
+            width: 60%;
+            text-align: right;
+            word-break: break-word;
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+        }
+        .back-btn a {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #bfdbfe; /* Pastel blue */
+            color: #1e40af; /* Darker blue text */
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .back-btn a:hover {
+            background-color: #93c5fd; /* Slightly darker pastel blue */
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">Doctor Profile</div>
+        <div class="profile-field">
+            <span class="profile-label">Username</span>
+            <span class="profile-value">{{ doctor.username }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Mobile</span>
+            <span class="profile-value">{{ doctor.mobile }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Date of Birth</span>
+            <span class="profile-value">{{ doctor.date_of_birth }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Gender</span>
+            <span class="profile-value">{{ doctor.gender }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Department</span>
+            <span class="profile-value">{{ doctor.department }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Designation</span>
+            <span class="profile-value">{{ doctor.designation }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Address</span>
+            <span class="profile-value">{{ doctor.address }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Country</span>
+            <span class="profile-value">{{ doctor.country }}</span>
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">Container Name</span>
+            <span class="profile-value">{{ doctor.container_name }}</span>
+        </div>
+        <div class="back-btn">
+            <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

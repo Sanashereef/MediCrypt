@@ -1,0 +1,309 @@
+mysql> DESC auth_group;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| id    | int          | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(150) | NO   | UNI | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> DESC auth_group_permissions;
++---------------+--------+------+-----+---------+----------------+
+| Field         | Type   | Null | Key | Default | Extra          |
++---------------+--------+------+-----+---------+----------------+
+| id            | bigint | NO   | PRI | NULL    | auto_increment |
+| group_id      | int    | NO   | MUL | NULL    |                |
+| permission_id | int    | NO   | MUL | NULL    |                |
++---------------+--------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
+
+mysql> DESC auth_permission;
++-----------------+--------------+------+-----+---------+----------------+
+| Field           | Type         | Null | Key | Default | Extra          |
++-----------------+--------------+------+-----+---------+----------------+
+| id              | int          | NO   | PRI | NULL    | auto_increment |
+| name            | varchar(255) | NO   |     | NULL    |                |
+| content_type_id | int          | NO   | MUL | NULL    |                |
+| codename        | varchar(100) | NO   |     | NULL    |                |
++-----------------+--------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> DESC auth_user;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int          | NO   | PRI | NULL    | auto_increment |
+| password     | varchar(128) | NO   |     | NULL    |                |
+| last_login   | datetime(6)  | YES  |     | NULL    |                |
+| is_superuser | tinyint(1)   | NO   |     | NULL    |                |
+| username     | varchar(150) | NO   | UNI | NULL    |                |
+| first_name   | varchar(150) | NO   |     | NULL    |                |
+| last_name    | varchar(150) | NO   |     | NULL    |                |
+| email        | varchar(254) | NO   |     | NULL    |                |
+| is_staff     | tinyint(1)   | NO   |     | NULL    |                |
+| is_active    | tinyint(1)   | NO   |     | NULL    |                |
+| date_joined  | datetime(6)  | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+11 rows in set (0.00 sec)
+
+mysql> DESC auth_user_groups;
++----------+--------+------+-----+---------+----------------+
+| Field    | Type   | Null | Key | Default | Extra          |
++----------+--------+------+-----+---------+----------------+
+| id       | bigint | NO   | PRI | NULL    | auto_increment |
+| user_id  | int    | NO   | MUL | NULL    |                |
+| group_id | int    | NO   | MUL | NULL    |                |
++----------+--------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> DESC auth_user_user_permissions;
++---------------+--------+------+-----+---------+----------------+
+| Field         | Type   | Null | Key | Default | Extra          |
++---------------+--------+------+-----+---------+----------------+
+| id            | bigint | NO   | PRI | NULL    | auto_increment |
+| user_id       | int    | NO   | MUL | NULL    |                |
+| permission_id | int    | NO   | MUL | NULL    |                |
++---------------+--------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> DESC django_admin_log;
++-----------------+-------------------+------+-----+---------+----------------+
+| Field           | Type              | Null | Key | Default | Extra          |
++-----------------+-------------------+------+-----+---------+----------------+
+| id              | int               | NO   | PRI | NULL    | auto_increment |
+| action_time     | datetime(6)       | NO   |     | NULL    |                |
+| object_id       | longtext          | YES  |     | NULL    |                |
+| object_repr     | varchar(200)      | NO   |     | NULL    |                |
+| action_flag     | smallint unsigned | NO   |     | NULL    |                |
+| change_message  | longtext          | NO   |     | NULL    |                |
+| content_type_id | int               | YES  | MUL | NULL    |                |
+| user_id         | int               | NO   | MUL | NULL    |                |
++-----------------+-------------------+------+-----+---------+----------------+
+8 rows in set (0.01 sec)
+
+mysql> DESC django_content_type;
++-----------+--------------+------+-----+---------+----------------+
+| Field     | Type         | Null | Key | Default | Extra          |
++-----------+--------------+------+-----+---------+----------------+
+| id        | int          | NO   | PRI | NULL    | auto_increment |
+| app_label | varchar(100) | NO   | MUL | NULL    |                |
+| model     | varchar(100) | NO   |     | NULL    |                |
++-----------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> DESC django_migrations;
++---------+--------------+------+-----+---------+----------------+
+| Field   | Type         | Null | Key | Default | Extra          |
++---------+--------------+------+-----+---------+----------------+
+| id      | bigint       | NO   | PRI | NULL    | auto_increment |
+| app     | varchar(255) | NO   |     | NULL    |                |
+| name    | varchar(255) | NO   |     | NULL    |                |
+| applied | datetime(6)  | NO   |     | NULL    |                |
++---------+--------------+------+-----+---------+----------------+
+4 rows in set (0.01 sec)
+
+mysql> DESC django_session;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| session_key  | varchar(40) | NO   | PRI | NULL    |       |
+| session_data | longtext    | NO   |     | NULL    |       |
+| expire_date  | datetime(6) | NO   | MUL | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> DESC files;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| id             | int          | NO   | PRI | NULL    | auto_increment |
+| filename       | varchar(255) | NO   |     | NULL    |                |
+| sender_id      | int          | NO   | MUL | NULL    |                |
+| receiver_id    | int          | NO   | MUL | NULL    |                |
+| encryption_key | blob         | NO   |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> DESC hospital_app_file;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| id             | bigint       | NO   | PRI | NULL    | auto_increment |
+| filename       | varchar(255) | NO   |     | NULL    |                |
+| encryption_key | longblob     | NO   |     | NULL    |                |
+| receiver_id    | int          | NO   | MUL | NULL    |                |
+| sender_id      | int          | NO   | MUL | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> DESC hospital_app_request;
++--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        | Null | Key | Default | Extra          |
++--------------+-------------+------+-----+---------+----------------+
+| id           | bigint      | NO   | PRI | NULL    | auto_increment |
+| status       | varchar(10) | NO   |     | NULL    |                |
+| file_id      | bigint      | NO   | MUL | NULL    |                |
+| requester_id | int         | NO   | MUL | NULL    |                |
++--------------+-------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> DESC requests;
++--------------+----------------------------+------+-----+---------+----------------+
+| Field        | Type                       | Null | Key | Default | Extra          |
++--------------+----------------------------+------+-----+---------+----------------+
+| id           | int                        | NO   | PRI | NULL    | auto_increment |
+| file_id      | int                        | NO   | MUL | NULL    |                |
+| requester_id | int                        | NO   | MUL | NULL    |                |
+| status       | enum('Pending','Approved') | YES  |     | Pending |                |
++--------------+----------------------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> DESC users;
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| id            | int          | NO   | PRI | NULL    | auto_increment |
+| username      | varchar(50)  | NO   | UNI | NULL    |                |
+| password_hash | varchar(255) | NO   |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
+
+mysql> 
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE auth_group (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL UNIQUE
+);
+
+CREATE TABLE auth_group_permissions (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    group_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES auth_group(id),
+    FOREIGN KEY (permission_id) REFERENCES auth_permission(id)
+);
+
+CREATE TABLE auth_permission (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    content_type_id INT NOT NULL,
+    codename VARCHAR(100) NOT NULL,
+    FOREIGN KEY (content_type_id) REFERENCES django_content_type(id)
+);
+
+CREATE TABLE auth_user (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    password VARCHAR(128) NOT NULL,
+    last_login DATETIME(6),
+    is_superuser TINYINT(1) NOT NULL,
+    username VARCHAR(150) NOT NULL UNIQUE,
+    first_name VARCHAR(150) NOT NULL,
+    last_name VARCHAR(150) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    is_staff TINYINT(1) NOT NULL,
+    is_active TINYINT(1) NOT NULL,
+    date_joined DATETIME(6) NOT NULL
+);
+
+CREATE TABLE auth_user_groups (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    group_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth_user(id),
+    FOREIGN KEY (group_id) REFERENCES auth_group(id)
+);
+
+CREATE TABLE auth_user_user_permissions (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth_user(id),
+    FOREIGN KEY (permission_id) REFERENCES auth_permission(id)
+);
+
+CREATE TABLE django_admin_log (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    action_time DATETIME(6) NOT NULL,
+    object_id LONGTEXT,
+    object_repr VARCHAR(200) NOT NULL,
+    action_flag SMALLINT UNSIGNED NOT NULL,
+    change_message LONGTEXT NOT NULL,
+    content_type_id INT,
+    user_id INT NOT NULL,
+    FOREIGN KEY (content_type_id) REFERENCES django_content_type(id),
+    FOREIGN KEY (user_id) REFERENCES auth_user(id)
+);
+
+CREATE TABLE django_content_type (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    app_label VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE django_migrations (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    app VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    applied DATETIME(6) NOT NULL
+);
+
+CREATE TABLE django_session (
+    session_key VARCHAR(40) NOT NULL PRIMARY KEY,
+    session_data LONGTEXT NOT NULL,
+    expire_date DATETIME(6) NOT NULL
+);
+
+CREATE TABLE files (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    encryption_key BLOB NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+CREATE TABLE hospital_app_file (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    encryption_key LONGBLOB NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(id),
+    FOREIGN KEY (receiver_id) REFERENCES users(id)
+);
+
+CREATE TABLE hospital_app_request (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    status VARCHAR(10) NOT NULL,
+    file_id BIGINT NOT NULL,
+    requester_id INT NOT NULL,
+    FOREIGN KEY (file_id) REFERENCES hospital_app_file(id),
+    FOREIGN KEY (requester_id) REFERENCES users(id)
+);
+
+CREATE TABLE requests (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    file_id INT NOT NULL,
+    requester_id INT NOT NULL,
+    status ENUM('Pending', 'Approved') DEFAULT 'Pending',
+    FOREIGN KEY (file_id) REFERENCES files(id),
+    FOREIGN KEY (requester_id) REFERENCES users(id)
+);
+
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL
+);
+
