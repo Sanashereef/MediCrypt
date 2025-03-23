@@ -123,6 +123,11 @@ from hospital_app.models import Request, Doctor  # Import models
 
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from .models import ActivityLog
+
+def log_action(user, action_text):
+    ActivityLog.objects.create(user=user, action=action_text)
+
 
 def logout_view(request):
     logout(request)
@@ -369,6 +374,171 @@ logger = logging.getLogger(__name__)
 
 
 
+# @csrf_exempt
+# def signup(request):
+#     try:
+#         if request.method == "GET":
+#             return render(request, 'signup.html')
+
+#         if request.method == "POST":
+#             try:
+#                 data = json.loads(request.body.decode('utf-8'))
+#             except json.JSONDecodeError:
+#                 return JsonResponse({"error": "Invalid JSON format"}, status=400)
+
+#             logger.info("Parsed Data: %s", data)
+
+#             # Adjusted required fields (removed container-name since frontend doesn’t send it)
+#             required_fields = ["first-name", "last-name", "email", "mobile", "password", "date-of-birth",
+#                                "gender", "department", "designation", "address", "country","container-name"]
+#             missing_fields = [field for field in required_fields if field not in data or not data[field]]
+#             if missing_fields:
+#                 return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
+
+#             first_name = data["first-name"]
+#             last_name = data["last-name"]
+#             email = data["email"]
+#             mobile = data["mobile"]
+#             password = data["password"]
+#             date_of_birth = data["date-of-birth"]
+#             gender = data["gender"]
+#             department = data["department"]
+#             designation = data["designation"]
+#             address = data["address"]
+#             country = data["country"]
+#             container_name = data["container-name"]  # Get container name from user input
+
+#             if User.objects.filter(email=email).exists():
+#                 return JsonResponse({"error": "Email already registered"}, status=400)
+
+#             try:
+#                 dob = datetime.strptime(date_of_birth, '%d/%m/%Y').date()
+#             except ValueError:
+#                 return JsonResponse({"error": "Invalid date format. Use DD/MM/YYYY"}, status=400)
+
+#             logger.info(f"Creating OpenStack container: {container_name}")
+#             if not create_container(container_name):
+#                 return JsonResponse({"error": "Failed to create OpenStack container"}, status=500)
+
+#             user = User.objects.create_user(
+#                 username=email,  # Use email as username for uniqueness
+#                 email=email,
+#                 password=password,
+#                 first_name=first_name,
+#                 last_name=last_name
+#             )
+
+#             doctor = Doctor.objects.create(
+#                 user=user,
+#                 username=first_name,
+#                 mobile=mobile,
+#                 date_of_birth=dob,
+#                 gender=gender,
+#                 department=department,
+#                 designation=designation,
+#                 address=address,
+#                 country=country,
+#                 container_name=container_name
+#             )
+
+#             doctor_keys = DoctorKey(user=user)
+#             doctor_keys.generate_keys()
+
+#             login(request, user)
+
+#             return JsonResponse({"message": "Signup successful", "container": container_name}, status=201)
+
+#     except Exception as e:
+#         logger.error(f"Signup error: {str(e)}", exc_info=True)
+#         return JsonResponse({"error": "Internal server error"}, status=500)
+
+#     return JsonResponse({"error": "Invalid request"}, status=400)
+
+# @csrf_exempt
+# def signup(request):
+#     try:
+#         if request.method == "GET":
+#             return render(request, 'signup.html')
+
+#         if request.method == "POST":
+#             try:
+#                 data = json.loads(request.body.decode('utf-8'))
+#             except json.JSONDecodeError:
+#                 return JsonResponse({"error": "Invalid JSON format"}, status=400)
+
+#             logger.info("Parsed Data: %s", data)
+
+#             required_fields = ["first-name", "last-name", "email", "mobile", "password", "date-of-birth",
+#                               "gender", "department", "designation", "address", "country", "container-name"]
+#             missing_fields = [field for field in required_fields if field not in data or not data[field]]
+#             if missing_fields:
+#                 return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
+
+#             first_name = data["first-name"]
+#             last_name = data["last-name"]
+#             email = data["email"]
+#             mobile = data["mobile"]
+#             password = data["password"]
+#             date_of_birth = data["date-of-birth"]
+#             gender = data["gender"]
+#             department = data["department"]
+#             designation = data["designation"]
+#             address = data["address"]
+#             country = data["country"]
+#             container_name = data["container-name"]
+
+#             if User.objects.filter(email=email).exists():
+#                 return JsonResponse({"error": "Email already registered"}, status=400)
+
+#             try:
+#                 dob = datetime.strptime(date_of_birth, '%d/%m/%Y').date()
+#                 logger.info(f"Parsed DOB: {dob.strftime('%d/%m/%Y')}")  # Log as DD/MM/YYYY
+#             except ValueError:
+#                 return JsonResponse({"error": "Invalid date format. Use DD/MM/YYYY (e.g., 17/03/2025)"}, status=400)
+
+#             logger.info(f"Creating OpenStack container: {container_name}")
+#             if not create_container(container_name):
+#                 return JsonResponse({"error": "Failed to create OpenStack container"}, status=500)
+
+#             # Create user and log details
+#             user = User.objects.create_user(
+#                 username=email.lower(),  # Ensure consistency with lowercase
+#                 email=email.lower(),
+#                 password=password,
+#                 first_name=first_name,
+#                 last_name=last_name
+#             )
+#             logger.info(f"Created user - Username: {user.username}, Email: {user.email}, Password Hash: {user.password}")
+
+#             doctor = Doctor.objects.create(
+#                 user=user,
+#                 username=first_name,
+#                 mobile=mobile,
+#                 date_of_birth=dob,
+#                 gender=gender,
+#                 department=department,
+#                 designation=designation,
+#                 address=address,
+#                 country=country,
+#                 container_name=container_name
+#             )
+
+#             doctor_keys = DoctorKey(user=user)
+#             doctor_keys.generate_keys()
+
+#             # Log in the user immediately to verify
+#             login(request, user)
+#             logger.info(f"User logged in after signup: {request.user.is_authenticated}")
+
+#             return JsonResponse({"message": "Signup successful", "container": container_name}, status=201)
+
+#     except Exception as e:
+#         logger.error(f"Signup error: {str(e)}", exc_info=True)
+#         return JsonResponse({"error": "Internal server error"}, status=500)
+
+#     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
 @csrf_exempt
 def signup(request):
     try:
@@ -383,9 +553,8 @@ def signup(request):
 
             logger.info("Parsed Data: %s", data)
 
-            # Adjusted required fields (removed container-name since frontend doesn’t send it)
             required_fields = ["first-name", "last-name", "email", "mobile", "password", "date-of-birth",
-                               "gender", "department", "designation", "address", "country"]
+                              "gender", "department", "designation", "address", "country", "container-name"]
             missing_fields = [field for field in required_fields if field not in data or not data[field]]
             if missing_fields:
                 return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
@@ -401,29 +570,29 @@ def signup(request):
             designation = data["designation"]
             address = data["address"]
             country = data["country"]
-
-            # Generate container_name (e.g., based on username or email)
-            container_name = f"{first_name.lower()}_{mobile}"  # Example: john_1234567890
+            container_name = data["container-name"]
 
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"error": "Email already registered"}, status=400)
 
             try:
                 dob = datetime.strptime(date_of_birth, '%d/%m/%Y').date()
+                logger.info(f"Parsed DOB: {dob.strftime('%d/%m/%Y')}")
             except ValueError:
-                return JsonResponse({"error": "Invalid date format. Use DD/MM/YYYY"}, status=400)
+                return JsonResponse({"error": "Invalid date format. Use DD/MM/YYYY (e.g., 17/03/2025)"}, status=400)
 
             logger.info(f"Creating OpenStack container: {container_name}")
             if not create_container(container_name):
                 return JsonResponse({"error": "Failed to create OpenStack container"}, status=500)
 
             user = User.objects.create_user(
-                username=email,  # Use email as username for uniqueness
-                email=email,
+                username=first_name,
+                email=email.lower(),
                 password=password,
                 first_name=first_name,
                 last_name=last_name
             )
+            logger.info(f"Created user - Username: {user.username}, Email: {user.email}, Password Hash: {user.password}")
 
             doctor = Doctor.objects.create(
                 user=user,
@@ -442,6 +611,7 @@ def signup(request):
             doctor_keys.generate_keys()
 
             login(request, user)
+            logger.info(f"User logged in after signup: {request.user.is_authenticated}")
 
             return JsonResponse({"message": "Signup successful", "container": container_name}, status=201)
 
@@ -450,8 +620,23 @@ def signup(request):
         return JsonResponse({"error": "Internal server error"}, status=500)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# def dashboard_view(request):
+#     return render(request, 'dashboard.html')  # Ensure this file exists
+@login_required  # Ensure only logged-in users can access the dashboard
 def dashboard_view(request):
-    return render(request, 'dashboard.html')  # Ensure this file exists
+    # Get the logged-in user
+    user = request.user
+    # Fetch the corresponding Doctor instance
+    try:
+        doctor = Doctor.objects.get(user=user)
+        doctor_name = doctor.username  # Use the doctor's username as their name
+    except Doctor.DoesNotExist:
+        doctor_name = user.username  # Fallback to the user's username (email) if Doctor not found
+    
+    # Pass the doctor's name to the template
+    return render(request, 'dashboard.html', {'doctor_name': doctor_name})
 
 
 @csrf_exempt
@@ -518,7 +703,11 @@ def request_file(request):
             doctor_key = DoctorKey.objects.filter(user=requester).first()
             if not doctor_key:
                 return JsonResponse({"error": "Requester does not have a public key"}, status=400)
-
+            
+            if sender == requester:
+                return JsonResponse(
+                    {"error": "Sender and requester cannot be the same"}, status=400
+                )
             # ✅ Create request entry without checking file existence
             new_request = Request.objects.create(
                 filename=filename,  # Store filename as string
@@ -544,6 +733,141 @@ def request_file(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from .models import User, DoctorKey, Request
+import json
+
+
+# @csrf_exempt
+# def request_file(request):
+#     if request.method == "GET":
+#         return render(request, "request_file.html")  # ✅ Load the frontend page
+
+#     elif request.method == "POST":
+#         try:
+#             data = json.loads(request.body)
+#             filename = data.get("filename")  # Requested file name
+#             sender_name = data.get("sender")  # Doctor who owns the file
+#             requester_name = data.get("requester")  # Doctor making the request
+
+#             # ✅ Get sender (doctor who owns the file)
+#             sender = get_object_or_404(User, username=sender_name)
+
+#             # ✅ Get requester (doctor making the request)
+#             requester = get_object_or_404(User, username=requester_name)
+
+#             # ❗️ Check if sender and requester are the same
+#             if sender == requester:
+#                 return JsonResponse(
+#                     {"error": "Sender and requester cannot be the same"}, status=400
+#                 )
+
+#             # ✅ Check if requester's public key exists
+#             doctor_key = DoctorKey.objects.filter(user=requester).first()
+#             if not doctor_key:
+#                 return JsonResponse(
+#                     {"error": "Requester does not have a public key"}, status=400
+#                 )
+
+#             # ✅ Create request entry without checking file existence
+#             new_request = Request.objects.create(
+#                 filename=filename,  # Store filename as string
+#                 sender=sender,  # Store sender (User object)
+#                 requester=requester,  # Store requester (User object)
+#                 status="Pending",
+#             )
+
+#             return JsonResponse(
+#                 {
+#                     "message": "Request sent successfully",
+#                     "request_id": new_request.id,
+#                     "requester": requester.username,
+#                     "receiver": sender.username,
+#                     "filename": filename,
+#                     "requester_public_key": doctor_key.public_key.decode(),  # Send public key as string
+#                 },
+#                 status=201,
+#             )
+
+#         except json.JSONDecodeError:
+#             return JsonResponse({"error": "Invalid JSON data"}, status=400)
+
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+#     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# from django.shortcuts import get_object_or_404
+# from django.views.decorators.csrf import csrf_exempt
+# from django.http import JsonResponse
+# import json
+# from hospital_app.models import Doctor, DoctorKey, Request
+# from django.contrib.auth.models import User
+
+
+# @csrf_exempt
+# def request_file(request):
+#     if request.method == "GET":
+#         return render(request, "request_file.html")  # ✅ Load the frontend page
+
+#     elif request.method == "POST":
+#         try:
+#             data = json.loads(request.body)
+#             filename = data.get("filename")  # Requested file name
+#             sender_name = data.get("sender")  # Doctor who owns the file
+#             requester_name = data.get("requester")  # Doctor making the request
+
+#             # ✅ Get sender (doctor who owns the file)
+#             sender_doctor = get_object_or_404(Doctor, username=sender_name)
+#             sender = sender_doctor.user  # Correct User object
+
+#             # ✅ Get requester (doctor making the request)
+#             requester_doctor = get_object_or_404(Doctor, username=requester_name)
+#             requester = requester_doctor.user  # Correct User object
+
+#             # ❗️ Check if sender and requester are the same
+#             if sender == requester:
+#                 return JsonResponse(
+#                     {"error": "Sender and requester cannot be the same"}, status=400
+#                 )
+
+#             # ✅ Check if requester's public key exists
+#             doctor_key = DoctorKey.objects.filter(user=requester).first()
+#             if not doctor_key:
+#                 return JsonResponse(
+#                     {"error": "Requester does not have a public key"}, status=400
+#                 )
+
+#             # ✅ Create request entry without checking file existence
+#             new_request = Request.objects.create(
+#                 filename=filename,  # Store filename as string
+#                 sender=sender,  # Store sender (User object)
+#                 requester=requester,  # Store requester (User object)
+#                 status="Pending",
+#             )
+
+#             return JsonResponse(
+#                 {
+#                     "message": "Request sent successfully",
+#                     "request_id": new_request.id,
+#                     "requester": requester.username,
+#                     "receiver": sender.username,
+#                     "filename": filename,
+#                     "requester_public_key": doctor_key.public_key.decode(),  # Send public key as string
+#                 },
+#                 status=201,
+#             )
+
+#         except json.JSONDecodeError:
+#             return JsonResponse({"error": "Invalid JSON data"}, status=400)
+
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+#     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 
@@ -894,8 +1218,8 @@ from hashlib import sha256
 @csrf_exempt
 def decrypt_file(request, filename):
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Authentication required"}, status=401)
+        # if not request.user.is_authenticated:
+        #     return JsonResponse({"error": "Authentication required"}, status=401)
 
         try:
             user = request.user

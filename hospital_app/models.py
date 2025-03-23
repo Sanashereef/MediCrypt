@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from cryptography.hazmat.primitives.asymmetric import dh
 from cryptography.hazmat.primitives import serialization
+from django.contrib.auth.models import User
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -26,7 +27,14 @@ class File(models.Model):
 
     def __str__(self):
         return self.filename
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.TextField()  # Stores what the doctor did
+    timestamp = models.DateTimeField(auto_now_add=True)  # Stores when it happened
 
+    def __str__(self):
+        return f"{self.user.username} - {self.action} - {self.timestamp}"
+    
 class Request(models.Model):
     filename = models.CharField(max_length=255)  # ✅ Store filename
     sender = models.ForeignKey(User, related_name='requests_received', on_delete=models.CASCADE)  # ✅ Store sender
